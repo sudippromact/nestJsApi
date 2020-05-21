@@ -28,4 +28,10 @@ export class AppService {
     return users
   }
 
+  updateUser(name:string,user:User):User[]{
+    users = users.filter(x=>x.Name!==name);
+    users.push(user);
+    return users;
+  }
+
 }

@@ -1,35 +1,23 @@
-import { Controller, Get, Post, Param, Body, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Delete, Put, UseGuards, Request } from '@nestjs/common';
 import { AppService } from './app.service';
-import {User} from './app.model.User';
+import {User} from './model/app.model.user';
+import { AuthService } from './auth/auth.service';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Controller('api')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService,private authService: AuthService) {}
 
-  @Get('/users')
-  getUsers():User[]{
-    return this.appService.getUsers()
+
+  // @Put('/user/:name')
+  // updateUser(@Param('name') name: string, @Body() user: User) {
+  //   return this.appService.updateUser(name,user);
+  // }
+
+  @UseGuards(AuthGuard('local'))
+  @Post('/auth/login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
   }
-
-  @Get('/user/:name')
-  findUser(@Param('name')name:string):User{
-    return this.appService.findUser(name)
-  }
-
-  @Post('/user')
-  addUser(@Body()user:User):User[]{
-    return this.appService.addUser(user)
-  }
-
-  @Delete('/user/:name')
-  remove(@Param('name') name: string):User[] {
-    return this.appService.removeUser(name);
-  }
-
-  @Put('/user/:name')
-  updateUser(@Param('name') name: string, @Body() user: User) {
-    return this.appService.updateUser(name,user);
-  }
-
-
 }

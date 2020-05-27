@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, HttpModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -8,16 +8,17 @@ import { Connection } from 'typeorm';
 import { UsersController } from './users/users.controller';
 
 @Module({
-  imports: [AuthModule, UsersModule,TypeOrmModule.forRoot({
-    type: 'mysql',
-    host: 'localhost',
-    port: 3308,
-    username: 'root',
-    password: 'password',
-    database: 'new',
-    synchronize: true,
-    autoLoadEntities: true,
-  }),],
+  imports: [AuthModule, UsersModule, HttpModule.register({ timeout: 5000, maxRedirects: 5 }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3308,
+      username: 'root',
+      password: 'password',
+      database: 'new',
+      synchronize: true,
+      autoLoadEntities: true,
+    }),],
   controllers: [AppController, UsersController],
   providers: [AppService],
 })

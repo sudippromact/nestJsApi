@@ -1,9 +1,10 @@
 import { Controller, Post, Body, Get, Param, Delete, UseGuards } from "@nestjs/common";
 import { User } from "./users.entity";
 import { UsersService } from "./users.service";
-import { AuthService } from '../auth/auth.service';
-import { AuthGuard } from '@nestjs/passport';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from "src/auth/strategy/jwt-auth.guard";
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Controller('api')
 export class UsersController {

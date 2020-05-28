@@ -1,4 +1,4 @@
-export interface User{
-    Name:String
-    PhoneNo:String
+export interface UserLogin{
+    Email:String
+    Password:String
 }

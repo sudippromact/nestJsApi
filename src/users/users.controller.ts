@@ -10,10 +10,10 @@ dotenv.config();
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('/registration')
-  create(@Body() createUserDto: User): Promise<User> {    
-    return this.usersService.create(createUserDto);
-  }
+  // @Post('/registration')
+  // create(@Body() createUserDto: User): Promise<User> {    
+  //   return this.usersService.create(createUserDto);
+  // }
   
   @UseGuards(JwtAuthGuard)
   @Get('/users')

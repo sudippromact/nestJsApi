@@ -1,9 +1,10 @@
 import { Injectable, HttpService } from '@nestjs/common';
-import { User } from './model/app.model.user';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { response } from 'express';
+import { User } from './users/users.entity';
 import { map } from 'rxjs/operators';
+import {UserLogin} from './model/app.model.user'
 // var users: User[] = [{ Name: "Sudip", PhoneNo: "+918013604541" },
 // { Name: "Sudip Sadhukhan", PhoneNo: "+91700354782" },{Name:"Jhon",PhoneNo:"+917113354782"}];
 var querystring = require('querystring');
@@ -13,12 +14,37 @@ export class AppService {
 
   constructor(private httpService: HttpService) { }
 
-  signInOAuth():Observable<any>{
+  registerInOAuth(user:any){
+    var body = JSON.stringify({
+      client_id: "9YyKZX2C69usKgG04Fu79dvbNVzcAwq1",
+      email: user.email,
+      password: user.password,
+      connection: "Username-Password-Authentication",
+      username: user.username,
+      name: user.name,
+    })
+
+    try{
+      return this.httpService.post('https://demo-nest.auth0.com/dbconnections/signup', body
+        , {
+          headers:
+          {
+            'Content-Type': 'application/json'
+          }
+        }).pipe(map((response)=>{return response.data}));
+      
+      }catch(e){
+        console.log(e);
+        
+      }
+  }
+
+  signInOAuth(req:UserLogin):Observable<any>{
 
     var s = JSON.stringify({
       grant_type: 'password',
-      username: 'babai0204@gmail.com',
-      password: 'P@ssw0rd',
+      username: req.Email,
+      password: req.Password,
       audience: 'https://demo-api.nest.com',
       client_id: '9YyKZX2C69usKgG04Fu79dvbNVzcAwq1',
       client_secret: 'i9l998r6EQ-ywEk2I957OV50VDIDBaSdKC5NXy59Mhns8q-5hSkQP68qicFLD3Hq',

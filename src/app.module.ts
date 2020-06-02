@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { UsersController } from './users/users.controller';
+import { Auth0Strategy } from './auth/strategy/auth0.strategy';
 
 @Module({
   imports: [AuthModule, UsersModule, HttpModule.register({ timeout: 5000, maxRedirects: 5 }),
@@ -20,7 +21,7 @@ import { UsersController } from './users/users.controller';
       autoLoadEntities: true,
     }),],
   controllers: [AppController, UsersController],
-  providers: [AppService],
+  providers: [AppService,Auth0Strategy],
 })
 export class AppModule {
   constructor(private connection: Connection) { }

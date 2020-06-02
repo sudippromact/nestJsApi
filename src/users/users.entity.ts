@@ -10,16 +10,19 @@ export class User {
 
     @Column({ nullable: true })
     username: string;
-
-    @Column({ nullable: true})
-    password: string;
-
+    
     @Column({ default: false })
     isAccountActivate: boolean;
 
-    @Column()
+    @Column({nullable:true})
     phoneNo: string;
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @Column()
+    authId:String;
+
+    @Column()
+    email:string;
 }

@@ -1,96 +1,77 @@
-import { Injectable, HttpService } from '@nestjs/common';
+import { Injectable, HttpService, HttpException } from '@nestjs/common';
 import { Observable, from } from 'rxjs';
-import { AxiosResponse } from 'axios';
-import { response } from 'express';
-import { User } from './users/users.entity';
 import { map } from 'rxjs/operators';
-import {UserLogin} from './model/app.model.user'
-// var users: User[] = [{ Name: "Sudip", PhoneNo: "+918013604541" },
-// { Name: "Sudip Sadhukhan", PhoneNo: "+91700354782" },{Name:"Jhon",PhoneNo:"+917113354782"}];
-var querystring = require('querystring');
+import { UserDTO } from './model/app.model.user';
+import { UsersService } from './users/users.service';
+import { catchError } from 'rxjs/operators';
 
 @Injectable()
 export class AppService {
 
-  constructor(private httpService: HttpService) { }
+  constructor(private httpService: HttpService, private userService: UsersService) { }
 
-  registerInOAuth(user:any){
+  registerInOAuth(user: UserDTO) {
+
+
+    // var auth0Strategy = new Auth0Strategy({
+    //   domain: process.env.AUTH0_DOMAIN_WITHOUT,
+    //   clientId: process.env.AUTH0_CLIENT_ID,
+    //   email: user.Email,
+    //   password: user.Password,
+    //   connection: process.env.AUTH0_DB_CONNECTION_NAME,
+    //   username: user.Username,
+    //   name: user.Name
+    //   //clientSecrect:'i9l998r6EQ-ywEk2I957OV50VDIDBaSdKC5NXy59Mhns8q-5hSkQP68qicFLD3Hq'
+    // });
+
+    // passport.use(auth0Strategy);
+
+
     var body = JSON.stringify({
-      client_id: "9YyKZX2C69usKgG04Fu79dvbNVzcAwq1",
-      email: user.email,
-      password: user.password,
-      connection: "Username-Password-Authentication",
-      username: user.username,
-      name: user.name,
+      client_id: process.env.AUTH0_CLIENT_ID,
+      email: user.Email,
+      password: user.Password,
+      connection: process.env.AUTH0_DB_CONNECTION_NAME,
+      username: user.Username,
+      name: user.Name
     })
 
-    try{
-      return this.httpService.post('https://demo-nest.auth0.com/dbconnections/signup', body
-        , {
-          headers:
-          {
-            'Content-Type': 'application/json'
-          }
-        }).pipe(map((response)=>{return response.data}));
-      
-      }catch(e){
-        console.log(e);
-        
-      }
+
+
+    return this.httpService.post(`${process.env.AUTH0_DOMAIN}dbconnections/signup`, body
+      , {
+        headers:
+        {
+          'Content-Type': 'application/json'
+        }
+      }).pipe(map((response) => {
+        user.Auth0Id = response.data._id;
+        this.userService.create(user);
+        return response.data;
+      }));
+
   }
 
-  signInOAuth(req:UserLogin):Observable<any>{
+  signInOAuth(req: UserDTO): Observable<any> {
 
     var s = JSON.stringify({
       grant_type: 'password',
       username: req.Email,
       password: req.Password,
       audience: 'https://demo-api.nest.com',
-      client_id: '9YyKZX2C69usKgG04Fu79dvbNVzcAwq1',
-      client_secret: 'i9l998r6EQ-ywEk2I957OV50VDIDBaSdKC5NXy59Mhns8q-5hSkQP68qicFLD3Hq',
+      client_id: process.env.AUTH0_CLIENT_ID,
+      client_secret: process.env.AUTH0_CLIENT_SECRET,
     })
 
-    console.log(s);
-    try{
-    return this.httpService.post('https://demo-nest.auth0.com/oauth/token', s
+    return this.httpService.post(`${process.env.AUTH0_DOMAIN}oauth/token`, s
       , {
         headers:
         {
           'Content-Type': 'application/json'
         }
-      }).pipe(map((response)=>{return response.data}));
-    
-    }catch(e){
-      console.log(e);
-      
-    }
+      }).pipe(map((response) => { return response.data }),
+        catchError(e => { throw new HttpException(e.response.body, e.response.status) }
+        ));
+
   }
-
-  // getUsers(): User[] {
-  //   return users
-  // }
-
-  // findUser(name: string): User {
-  //   var user = users.find(x=>x.Name===name)
-  //   return user
-  // }
-
-  // addUser(user:User):User[]{
-  //   console.log(user);
-
-  //   users.push(user)
-  //   return users
-  // }
-
-  // removeUser(name:String):User[]{
-  //   users = users.filter(x=>x.Name!==name)
-  //   return users
-  // }
-
-  // updateUser(name:string,user:User):User[]{
-  //   users = users.filter(x=>x.Name!==name);
-  //   users.push(user);
-  //   return users;
-  // }
-
 }
